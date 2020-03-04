@@ -11,11 +11,10 @@ const Category = require('../../models/Category');
 //get products by id  done
 //post product        done
 //like product        done
-//unlike              done     
+//unlike              done    
 //bid on product
 //comment on product  done
 //uncomment           done
-//delete a product?
 
 // POST api/products
 // Create a product
@@ -177,14 +176,14 @@ router.post(
       const user = await User.findById(req.user.id).select('-password');
       const product = await Product.findById(req.params.id);
 
-      const newProduct = {
+      const newComment = {
         text: req.body.text,
         name: user.name,
         avatar: user.avatar,
         user: req.user.id
       };
 
-      product.comments.unshift(newProduct);
+      product.comments.unshift(newComment);
 
       await product.save();
 
@@ -232,6 +231,64 @@ router.delete('/comment/:id/:comment_id', auth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
+// POST api/product/bid/:id
+// Bid on product
+// Private
+router.post(
+  '/bid/:id',
+  [
+    auth,
+    [
+      check('price', 'Price is required')
+        .not()
+        .isEmpty()
+    ]
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const user = await User.findById(req.user.id).select('-password');
+      const product = await Product.findById(req.params.id);
+
+      const newBid = {
+        price: req.body.price,
+        name: user.name,
+        avatar: user.avatar,
+        user: req.user.id
+      };
+
+      let newBidPrice = newBid.price
+      var priceInBids = product.bids.map(price => {
+        return price.price
+      })
+      let highestBid = Math.max(...priceInBids)
+
+      //make sure this bid is higher than start price
+      if(newBidPrice <= product.price) {
+        return res.status(400).json({ msg: 'You hade to bid higher than the product price' });
+      }
+
+      //make sure this bid is the highest bid
+      if(newBidPrice <= highestBid ) {
+        return res.status(400).json({ msg: 'You hade to bid higher than the highest bid' });
+      }
+
+      product.bids.unshift(newBid);
+
+      await product.save();
+
+      res.json(product.bids);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Server Error');
+    }
+  }
+);
 
 // DELETE api/tweets/:id
 // Delete a tweet

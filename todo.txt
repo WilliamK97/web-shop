@@ -1,1 +1,4 @@
 sätt start och slutdatum till required i model och route
+
+make sure this bid is the highest bid
+make sure this bid is higher than start price
