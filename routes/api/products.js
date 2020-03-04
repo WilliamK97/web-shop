@@ -13,9 +13,9 @@ const Category = require('../../models/Category');
 //like product        done
 //unlike              done     
 //bid on product
-//comment on product
-//uncomment
-//delete a product
+//comment on product  done
+//uncomment           done
+//delete a product?
 
 // POST api/products
 // Create a product
@@ -154,8 +154,8 @@ router.put('/unlike/:id', auth, async (req, res) => {
   }
 });
 
-// POST api/tweets/comment/:id
-// Comment on a tweet
+// POST api/product/comment/:id
+// Comment on a product
 // Private
 router.post(
   '/comment/:id',
@@ -175,20 +175,20 @@ router.post(
 
     try {
       const user = await User.findById(req.user.id).select('-password');
-      const tweet = await Tweet.findById(req.params.id);
+      const product = await Product.findById(req.params.id);
 
-      const newTweet = {
+      const newProduct = {
         text: req.body.text,
         name: user.name,
         avatar: user.avatar,
         user: req.user.id
       };
 
-      tweet.comments.unshift(newTweet);
+      product.comments.unshift(newProduct);
 
-      await tweet.save();
+      await product.save();
 
-      res.json(tweet.comments);
+      res.json(product.comments);
     } catch (err) {
       console.error(err.message);
       res.status(500).send('Server Error');
@@ -196,14 +196,14 @@ router.post(
   }
 );
 
-// DELETE api/tweets/comment/:id/:comment_id
+// DELETE api/product/comment/:id/:comment_id
 // Delete comment
 // Private
 router.delete('/comment/:id/:comment_id', auth, async (req, res) => {
   try {
-    const tweet = await Tweet.findById(req.params.id);
+    const product = await Product.findById(req.params.id);
 
-    const comment = tweet.comments.find(
+    const comment = product.comments.find(
       comment => comment.id === req.params.comment_id
     );
 
@@ -218,15 +218,15 @@ router.delete('/comment/:id/:comment_id', auth, async (req, res) => {
     }
 
     // Get remove index
-    const removeIndex = tweet.comments
+    const removeIndex = product.comments
       .map(comment => comment.user.toString())
       .indexOf(req.user.id);
 
-    tweet.comments.splice(removeIndex, 1);
+      product.comments.splice(removeIndex, 1);
 
-    await tweet.save();
+    await product.save();
 
-    res.json(tweet.comments);
+    res.json(product.comments);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
