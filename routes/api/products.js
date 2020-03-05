@@ -12,7 +12,7 @@ const Category = require('../../models/Category');
 //post product        done
 //like product        done
 //unlike              done    
-//bid on product
+//bid on product      done
 //comment on product  done
 //uncomment           done
 
@@ -27,6 +27,7 @@ router.post(
       check('title', 'Title is required').not().isEmpty(),
       check('description', "description is required").not().isEmpty(),
       check('price', "Price is required").not().isEmpty(),
+      check('endDate', "End date is required").not().notEmpty(),
     ]
   ],
   async (req, res) => {
@@ -45,7 +46,10 @@ router.post(
         price: req.body.price,
         endDate: req.body.endDate,
         avatar: user.avatar,
-        productImage: req.body.productImage
+        productImage: req.body.productImage,
+        condition: req.body.condition,
+        priceWhenBought: req.body.priceWhenBought,
+        category: req.body.category
       });
 
       const product = await newProduct.save();
@@ -91,7 +95,6 @@ router.get('/:id',  async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-
 
 
 // PUT api/products/like/:id

@@ -24,16 +24,21 @@ const ProductSchema = new Schema({
   startDate: {
     type: Date,
     default: Date.now,
-    //required: true
+    required: true
   },
   endDate: {
     type: Date,
-    //required: true
+    required: true
   },
-//   category: {
-//     type: Schema.Types.ObjectId,
-//     ref: 'categories'
-//   },
+  category: {
+    type: String
+  },
+  condition: {
+    type: String
+  },
+  priceWhenBought: {
+    type: Number
+  },
   bids: [
     {
         user: {
